@@ -24,7 +24,7 @@ int OpenFolder(PHANDLE FileHandle, unsigned short *path) {
 
     if (NtCreateFileSSN == 0) {
         if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDHASH);
+            pNTDLL = GetDllAddress(NTDLL);
             if (pNTDLL == NULL) {
                 return 1;
             }
@@ -66,12 +66,12 @@ int ReadFolder(unsigned char *OutBuffer, unsigned short *path) {
 
     if (NtQueryDirectoryFileSSN == NULL) {
         if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDHASH);
+            pNTDLL = GetDllAddress(NTDLL);
             if (pNTDLL == NULL) {
                 return 1;
             }
         }
-        NtQueryDirectoryFileSyscall  = GetFuncAddress(pNTDLL, NTQDIRFILE) + 0x12;
+        NtQueryDirectoryFileSyscall  = GetFuncAddress(pNTDLL, NTQUERYDIRECTORYFILE) + 0x12;
         NtQueryDirectoryFileSSN      = ((PBYTE)(NtQueryDirectoryFileSyscall - 0xe))[0];
     }
 

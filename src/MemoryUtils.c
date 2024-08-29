@@ -35,7 +35,7 @@ void *AllocMemory(SIZE_T size) {
     void            *AllocatedMemoryPtr = {0};
 
     if (pNTDLL == NULL) {
-        pNTDLL          = GetDllAddress(NTDHASH);
+        pNTDLL          = GetDllAddress(NTDLL);
         pTpAllocWork    = NULL;
         pTpPostWork     = NULL;
         pTpReleaseWork  = NULL;
@@ -47,7 +47,7 @@ void *AllocMemory(SIZE_T size) {
         pTpReleaseWork          = GetFuncAddress(pNTDLL, TPRELEASEWORK);
     }
 
-    NtAllocArgs.pNtAllocateVirtualMemory    = (UINT_PTR)GetFuncAddress(pNTDLL, NTALLOCMEM);
+    NtAllocArgs.pNtAllocateVirtualMemory    = (UINT_PTR)GetFuncAddress(pNTDLL, NTALLOCATEVIRTUALMEMORY);
     NtAllocArgs.hProcess                    = (HANDLE)-1;
     NtAllocArgs.address                     = &AllocatedMemoryPtr;
     NtAllocArgs.size                        = &size;
@@ -59,10 +59,10 @@ void *AllocMemory(SIZE_T size) {
     WaitTime.QuadPart = -1000 * 10000;
     if (NtWaitForSingleObjectSSN == 0 || NtWaitForSingleObjectSyscall == 0) {
         if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDHASH);
+            pNTDLL = GetDllAddress(NTDLL);
         }
 
-        NtWaitForSingleObjectSyscall    = GetFuncAddress(pNTDLL, NTWAITOBJ) + 0x12;
+        NtWaitForSingleObjectSyscall    = GetFuncAddress(pNTDLL, NTWAITFORSINGLEOBJECT) + 0x12;
         NtWaitForSingleObjectSSN        = ((PBYTE)(NtWaitForSingleObjectSyscall - 0xe))[0];
     }
     NtWaitForSingleObject((HANDLE)-1, FALSE, &WaitTime);
@@ -77,9 +77,9 @@ int FreeMemory(void *buffer) {
 
     if (NtFreeVirtualMemorySSN == 0 || NtFreeVirtualMemorySyscall == 0) {
         if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDHASH);
+            pNTDLL = GetDllAddress(NTDLL);
         }
-        NtFreeVirtualMemorySyscall  = GetFuncAddress(pNTDLL, NTFREEMEM) + 0x12;
+        NtFreeVirtualMemorySyscall  = GetFuncAddress(pNTDLL, NTFREEVIRTUALMEMORY) + 0x12;
         NtFreeVirtualMemorySSN     = ((PBYTE)(NtFreeVirtualMemorySyscall - 0xe))[0];
     }
 

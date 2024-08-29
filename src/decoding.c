@@ -1,15 +1,14 @@
 #include "../include/decoding.h"
-#include "../include/macros.h"
 
 
 void DecodeString(unsigned char *str) {
-    int TempKey = ENKEY;
+    int TempKey = 0x05;
 
     while (*str != 0x00) {
         if (TempKey < 0) {
             TempKey = TempKey * -1;
         } else if (TempKey == 0) {
-            TempKey = ENKEY;
+            TempKey = 0x05;
         }
 
         *str = *str - TempKey;
@@ -19,13 +18,13 @@ void DecodeString(unsigned char *str) {
 }
 
 void DecodeStringW(unsigned short *str) {
-    int TempKey = ENKEY;
+    int TempKey = 0x05;
 
     while (*str != 0x0000) {
         if (TempKey < 0) {
             TempKey = TempKey * -1;
         } else if (TempKey == 0) {
-            TempKey = ENKEY;
+            TempKey = 0x05;
         }
 
         *str = *str - TempKey;

@@ -36,7 +36,7 @@ void *LoadDll(unsigned short *DllName) {
     PTP_WORK        WorkReturn      = NULL;
 
     if (pNTDLL == NULL) {
-        pNTDLL          = GetDllAddress(NTDHASH);
+        pNTDLL          = GetDllAddress(NTDLL);
         pTpAllocWork    = NULL;
         pTpPostWork     = NULL;
         pTpReleaseWork  = NULL;
@@ -65,10 +65,10 @@ void *LoadDll(unsigned short *DllName) {
     WaitTime.QuadPart               = -1500 * 10000;
     if (NtWaitForSingleObjectSSN == 0 || NtWaitForSingleObjectSyscall == 0) {
         if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDHASH);
+            pNTDLL = GetDllAddress(NTDLL);
         }
 
-        NtWaitForSingleObjectSyscall    = GetFuncAddress(pNTDLL, NTWAITOBJ) + 0x12;
+        NtWaitForSingleObjectSyscall    = GetFuncAddress(pNTDLL, NTWAITFORSINGLEOBJECT) + 0x12;
         NtWaitForSingleObjectSSN        = ((PBYTE)(NtWaitForSingleObjectSyscall - 0xe))[0];
     }
     NtWaitForSingleObject((HANDLE)-1, FALSE, &WaitTime);

@@ -1,6 +1,6 @@
 #ifndef DIRUTILS_YS
 #define DIRUTILS_YS
 
-int GrabExtensions(unsigned short *path);
+void GrabExtensions(unsigned short *path);
 
 #endif

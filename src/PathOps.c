@@ -8,7 +8,7 @@
 
 extern PEB *GetPEB();
 
-unsigned short LOCALAPPDATA[160]  = {0};
+static unsigned short LocalAppDataPath[160]  = {0};
 
 int ParseEnv(unsigned short *buffer, unsigned long EnvHash, int size) {
     unsigned short       *FullEnvVar     = GetPEB()->ProcessParameters->Environment;
@@ -43,18 +43,18 @@ int ParseEnv(unsigned short *buffer, unsigned long EnvHash, int size) {
 int InitPath(unsigned short *FilePath, unsigned short *OutBuffer) {
     int idx = 0;
 
-    if (LOCALAPPDATA[0] == 0x0000) {
-        LOCALAPPDATA[0]     = '\\';
-        LOCALAPPDATA[1]     = '?';
-        LOCALAPPDATA[2]     = '?';
-        LOCALAPPDATA[3]     = '\\';
-        if (ParseEnv(LOCALAPPDATA, LOCALAPP, 13) == 1) {
+    if (LocalAppDataPath[0] == 0x0000) {
+        LocalAppDataPath[0]     = '\\';
+        LocalAppDataPath[1]     = '?';
+        LocalAppDataPath[2]     = '?';
+        LocalAppDataPath[3]     = '\\';
+        if (ParseEnv(LocalAppDataPath, LOCALAPPDATA, 13) == 1) {
             return 1;
         }
     }
 
-    while (LOCALAPPDATA[idx] != '\0') {
-        *OutBuffer = LOCALAPPDATA[idx];
+    while (LocalAppDataPath[idx] != '\0') {
+        *OutBuffer = LocalAppDataPath[idx];
         OutBuffer++;
         idx++;
     }

