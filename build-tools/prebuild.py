@@ -7,7 +7,7 @@ MacrosFile = "./include/macros.h"
 HashData = [syscalls, functions, wallets, EnvVariables]
 EncodeData = [ChromiumBrowsersPaths, dlls, OtherStuff]
 
-def EncodeString(string) -> list[str]:
+def EncodeString(string):
     TempKey = 5
     EncodedString = []
 
@@ -25,7 +25,7 @@ def EncodeString(string) -> list[str]:
 
     return EncodedString
 
-def HashString(string) -> str:
+def HashString(string):
     total = 0
     idx = 1
     temp = 0
@@ -53,7 +53,7 @@ def HashString(string) -> str:
 def inet_addr(ip):
     return struct.unpack("I", socket.inet_aton(ip))[0]
 
-def GetHashedEncodedData() -> str:
+def GetHashedEncodedData():
     FinalData = ""
     for i in range(len(HashData)):
         for j in range(len(HashData[i])):
