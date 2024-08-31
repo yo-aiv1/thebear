@@ -25,7 +25,7 @@ int InitConnection() {
         SOCKADDR_IN SocketAddr  = {0};
         /*the passed argument is just ws2_32.dll encoded*/
         if (SocketDll == NULL) {
-            SocketDll       = LoadDll(WS2_32);
+            SocketDll       = LoadDll(WS232);
             WSAStartupFunc  = NULL;
             WSASocketFunc   = NULL;
             WSAConnectFunc  = NULL;

