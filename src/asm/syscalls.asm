@@ -1,21 +1,9 @@
-extern NtCreateFileSSN
-extern NtCreateFileSyscall
-extern NtReadFileSSN
-extern NtReadFileSyscall
-extern NtQueryInformationFileSSN
-extern NtQueryInformationFileSyscall
-extern NtWaitForSingleObjectSSN
-extern NtWaitForSingleObjectSyscall
-extern NtFreeVirtualMemorySSN
-extern NtFreeVirtualMemorySyscall
-extern NtQueryDirectoryFileSSN
-extern NtQueryDirectoryFileSyscall
-
+extern global
 
 section .text
     global NtCreateFile
-    global NtQueryInformationFile
     global NtReadFile
+    global NtQueryInformationFile
     global NtWaitForSingleObject
     global NtFreeVirtualMemory
     global NtQueryDirectoryFile
@@ -23,36 +11,36 @@ section .text
 
 NtCreateFile:
     mov r10, rcx
-    mov eax, [rel NtCreateFileSSN]
-    jmp qword [rel NtCreateFileSyscall]
+    mov eax, [rel global + 16]
+    jmp qword [rel global + 24]
     ret
 
 NtReadFile:
     mov r10, rcx
-    mov eax, [rel NtReadFileSSN]
-    jmp qword [rel NtReadFileSyscall]
+    mov eax, [rel global + 32]
+    jmp qword [rel global + 40]
     ret
 
 NtQueryInformationFile:
     mov r10, rcx
-    mov eax, [rel NtQueryInformationFileSSN]
-    jmp qword [rel NtQueryInformationFileSyscall]
+    mov eax, [rel global + 48]
+    jmp qword [rel global + 56]
     ret
 
 NtWaitForSingleObject:
     mov r10, rcx
-    mov eax, [rel NtWaitForSingleObjectSSN]
-    jmp qword [rel NtWaitForSingleObjectSyscall]
+    mov eax, [rel global + 64]
+    jmp qword [rel global + 72]
     ret
 
 NtFreeVirtualMemory:
     mov r10, rcx
-    mov eax, [rel NtFreeVirtualMemorySSN]
-    jmp qword [rel NtFreeVirtualMemorySyscall]
+    mov eax, [rel global + 80]
+    jmp qword [rel global + 88]
     ret
 
 NtQueryDirectoryFile:
     mov r10, rcx
-    mov eax, [rel NtQueryDirectoryFileSSN]
-    jmp qword [rel NtQueryDirectoryFileSyscall]
+    mov eax, [rel global + 96]
+    jmp qword [rel global + 104]
     ret

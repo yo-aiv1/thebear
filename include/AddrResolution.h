@@ -1,9 +1,10 @@
 #ifndef LOAD_Y
 #define LOAD_Y
 
+#include "../include/global.h"
 
-void *GetDllAddress(unsigned long DllHash);
-void *GetFuncAddress(void *DllAddress, unsigned long Func);
+void *GetDllAddress(HashInfo DllHashInfo);
+void *GetFuncAddress(void *DllAddress, HashInfo FunctionHashInfo);
 
 
 #endif

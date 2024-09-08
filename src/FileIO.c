@@ -3,32 +3,17 @@
 #include "../include/FileIO.h"
 #include "../include/macros.h"
 #include "../include/ntdll.h"
+#include "../include/global.h"
 
-
-typedef unsigned __int64 QWORD;
-
-extern void *pNTDLL;
-extern DWORD NtCreateFileSSN;
-extern QWORD NtCreateFileSyscall;
-extern DWORD NtReadFileSSN;
-extern QWORD NtReadFileSyscall;
-extern DWORD NtQueryInformationFileSSN;
-extern QWORD NtQueryInformationFileSyscall;
+extern GlobalsContainer global;
 
 int OpenFileY(PHANDLE FileHandle, ACCESS_MASK AccessValue, POBJECT_ATTRIBUTES ObjectAttributes, ULONG FileStateValue) {
     NTSTATUS        status      = 0;
     IO_STATUS_BLOCK IOstatus    = {0};
 
-    if (NtCreateFileSSN == 0) {
-        if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDLL);
-            if (pNTDLL == NULL) {
-                return 1;
-            }
-        }
-
-        NtCreateFileSyscall = (QWORD)GetFuncAddress(pNTDLL, NTCREATEFILE); + 0x12;
-        NtCreateFileSSN     = ((PBYTE)(NtCreateFileSyscall - 0xe))[0];
+    if (global.NtCreateFile.SSN == 0) {
+        global.NtCreateFile.SyscallInstruction = (unsigned long long)GetFuncAddress(global.NtDll, (HashInfo){NTCREATEFILE, 12}); + 0x12;
+        global.NtCreateFile.SSN = ((PBYTE)(global.NtCreateFile.SyscallInstruction - 0xe))[0];
     }
 
     status = NtCreateFile(
@@ -54,15 +39,9 @@ int ReadFileY(HANDLE FileHandle, unsigned char *buffer, ULONG BufferSize) {
     NTSTATUS        status      = 0;
     IO_STATUS_BLOCK IOstatus    = {0};
 
-    if (NtReadFileSSN == 0) {
-        if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDLL);
-            if (pNTDLL == NULL) {
-                return 1;
-            }
-        }
-        NtReadFileSyscall   = (QWORD)GetFuncAddress(pNTDLL, NTREADFILE) + 0x12;
-        NtReadFileSSN       = ((PBYTE)(NtReadFileSyscall - 0xe))[0];
+    if (global.NtReadFile.SSN == 0) {
+        global.NtReadFile.SyscallInstruction   = (unsigned long long)GetFuncAddress(global.NtDll, (HashInfo){NTREADFILE, 10}) + 0x12;
+        global.NtReadFile.SSN = ((PBYTE)(global.NtReadFile.SyscallInstruction - 0xe))[0];
     }
 
     status = NtReadFile(
@@ -87,15 +66,9 @@ int GetFileSizeY(HANDLE FileHandle) {
     IO_STATUS_BLOCK             IOstatus        = {0};
     NTSTATUS                    status          = 0;
 
-    if (NtQueryInformationFileSSN == 0) {
-        if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDLL);
-            if (pNTDLL == NULL) {
-                return 1;
-            }
-        }
-        NtQueryInformationFileSyscall   = GetFuncAddress(pNTDLL, NTQUERYINFORMATIONFILE) + 0x12;
-        NtQueryInformationFileSSN       = ((PBYTE)(NtQueryInformationFileSyscall - 0xe))[0];
+    if (global.NtQueryInformationFile.SSN == 0) {
+        global.NtQueryInformationFile.SyscallInstruction = (unsigned long long)GetFuncAddress(global.NtDll, (HashInfo){NTQUERYINFORMATIONFILE, 22}) + 0x12;
+        global.NtQueryInformationFile.SSN = ((PBYTE)(global.NtQueryInformationFile.SyscallInstruction - 0xe))[0];
     }
 
     status = NtQueryInformationFile(

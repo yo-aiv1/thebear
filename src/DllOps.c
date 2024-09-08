@@ -5,16 +5,10 @@
 #include "../include/DllOps.h"
 #include "../include/ntdll.h"
 #include "../include/decoding.h"
+#include "../include/global.h"
 
-
-typedef unsigned __int64 QWORD;
-
-extern NTSTATUS    (NTAPI *pTpAllocWork)           (PTP_WORK, PTP_WORK_CALLBACK, PVOID, PTP_CALLBACK_ENVIRON);
-extern void        (NTAPI *pTpPostWork)            (PTP_WORK);
-extern void        (NTAPI *pTpReleaseWork)         (PTP_WORK);
 
 extern void CALLBACK LdrLoadWorkCallback(PTP_CALLBACK_INSTANCE Instance, PVOID Context, PTP_WORK Work);
-extern void *pNTDLL;
 
 typedef struct _LDRLOADDLL_ARGS {
     UINT_PTR        pLdrLoadDll;
@@ -22,10 +16,10 @@ typedef struct _LDRLOADDLL_ARGS {
     PWSTR           DllCharacteristics;
     PUNICODE_STRING DllName;
     PVOID           *DllHandle;
-} LDRLOADDLL_ARGS, *PLDRLOADDLL_ARGS;
+} LDRLOADDLL_ARGS;
 
-extern DWORD NtWaitForSingleObjectSSN;
-extern QWORD NtWaitForSingleObjectSyscall;
+
+extern GlobalsContainer global;
 
 
 void *LoadDll(unsigned short *DllName) {
@@ -35,41 +29,30 @@ void *LoadDll(unsigned short *DllName) {
     LARGE_INTEGER   WaitTime        = {0};
     PTP_WORK        WorkReturn      = NULL;
 
-    if (pNTDLL == NULL) {
-        pNTDLL          = GetDllAddress(NTDLL);
-        pTpAllocWork    = NULL;
-        pTpPostWork     = NULL;
-        pTpReleaseWork  = NULL;
-    }
-
-    if (pTpAllocWork == NULL) {
-        pTpAllocWork            = GetFuncAddress(pNTDLL, TPALLOCWORK);
-        pTpPostWork             = GetFuncAddress(pNTDLL, TPPOSTWORK);
-        pTpReleaseWork          = GetFuncAddress(pNTDLL, TPRELEASEWORK);
+    if (global.functions.TpAllocWorkFunc == 0) {
+        global.functions.TpAllocWorkFunc    = GetFuncAddress(global.NtDll, (HashInfo){TPALLOCWORK, 11});
+        global.functions.TpPostWorkFunc     = GetFuncAddress(global.NtDll, (HashInfo){TPPOSTWORK, 10});
+        global.functions.TpReleaseWorkFunc  = GetFuncAddress(global.NtDll, (HashInfo){TPRELEASEWORK, 13});
     }
 
     DecodeStringW(DllName);
     DllInfo.Buffer          = DllName;
     DllInfo.MaximumLength   = (DllInfo.Length = (USHORT)(lenW(DllName) * sizeof(WCHAR))) + sizeof(UNICODE_NULL);
 
-    LdrLoadDllArgs.pLdrLoadDll          = (UINT_PTR) GetFuncAddress(pNTDLL, LDRLOADDLL);
+    LdrLoadDllArgs.pLdrLoadDll          = (UINT_PTR) GetFuncAddress(global.NtDll, (HashInfo){LDRLOADDLL, 10});
     LdrLoadDllArgs.DllPath              = NULL;
     LdrLoadDllArgs.DllCharacteristics   = NULL;
     LdrLoadDllArgs.DllName              = &DllInfo;
     LdrLoadDllArgs.DllHandle            = &DllAddress;
 
-    pTpAllocWork(&WorkReturn, (PTP_WORK_CALLBACK)LdrLoadWorkCallback, &LdrLoadDllArgs, NULL);
-    pTpPostWork(WorkReturn);
-    pTpReleaseWork(WorkReturn);
+    global.functions.TpAllocWorkFunc(&WorkReturn, (PTP_WORK_CALLBACK)LdrLoadWorkCallback, &LdrLoadDllArgs, NULL);
+    global.functions.TpPostWorkFunc(WorkReturn);
+    global.functions.TpReleaseWorkFunc(WorkReturn);
 
-    WaitTime.QuadPart               = -1500 * 10000;
-    if (NtWaitForSingleObjectSSN == 0 || NtWaitForSingleObjectSyscall == 0) {
-        if (pNTDLL == NULL) {
-            pNTDLL = GetDllAddress(NTDLL);
-        }
-
-        NtWaitForSingleObjectSyscall    = GetFuncAddress(pNTDLL, NTWAITFORSINGLEOBJECT) + 0x12;
-        NtWaitForSingleObjectSSN        = ((PBYTE)(NtWaitForSingleObjectSyscall - 0xe))[0];
+    WaitTime.QuadPart = -1500 * 10000;
+    if (global.NtWaitForSingleObject.SyscallInstruction == 0) {
+        global.NtWaitForSingleObject.SyscallInstruction = GetFuncAddress(global.NtDll, (HashInfo){NTWAITFORSINGLEOBJECT, 21}) + 0x12;
+        global.NtWaitForSingleObject.SSN = ((PBYTE)(global.NtWaitForSingleObject.SyscallInstruction - 0xe))[0];
     }
     NtWaitForSingleObject((HANDLE)-1, FALSE, &WaitTime);
 

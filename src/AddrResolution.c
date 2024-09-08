@@ -1,11 +1,12 @@
 #include "../include/ntdll.h"
 #include "../include/AddrResolution.h"
 #include "../include/hashing.h"
+#include "../include/StringUtils.h"
 
 
 extern PEB *GetPEB();
 
-void *GetDllAddress(unsigned long DllHash) {
+void *GetDllAddress(HashInfo DllHashInfo) {
     PPEB_LDR_DATA           pLdr            = GetPEB()->Ldr;
     PLDR_DATA_TABLE_ENTRY   EntryPtr        = {0};
     PLIST_ENTRY             ListEntryHead   = {0};
@@ -13,10 +14,11 @@ void *GetDllAddress(unsigned long DllHash) {
     ListEntryHead = pLdr->InLoadOrderModuleList.Flink;
     while (ListEntryHead != &pLdr->InLoadOrderModuleList) {
         EntryPtr = (PLDR_DATA_TABLE_ENTRY)ListEntryHead;
-        if (HashStrW(EntryPtr->BaseDllName.Buffer) == DllHash) {
-            return EntryPtr->DllBase;
+        if (DllHashInfo.size == (EntryPtr->BaseDllName.Length / 2)) {
+            if (HashStrW(EntryPtr->BaseDllName.Buffer) == DllHashInfo.hash) {
+                return EntryPtr->DllBase;
+            }
         }
-        
         ListEntryHead = ListEntryHead->Flink;
     }
     return NULL;
@@ -43,7 +45,7 @@ PIMAGE_NT_HEADERS LdrpImageHeader(void *Image) {
 }
 
 /* Credits go to Cracked5pider for the following function */
-void *GetFuncAddress(void *DllAddress, unsigned long Function) {
+void *GetFuncAddress(void *DllAddress, HashInfo FunctionHashInfo) {
     PIMAGE_NT_HEADERS       NtHeader    = {0};
     PIMAGE_EXPORT_DIRECTORY ExpDir      = {0};
     unsigned long long      ExpDirSize  = {0};
@@ -53,7 +55,7 @@ void *GetFuncAddress(void *DllAddress, unsigned long Function) {
     unsigned short          *AddrOrdns  = {0};
     char                    *FuncName   = {0};
 
-    if ( ! DllAddress || ! Function ) {
+    if ( ! DllAddress || ! FunctionHashInfo.hash ) {
         return NULL;
     }
 
@@ -69,10 +71,11 @@ void *GetFuncAddress(void *DllAddress, unsigned long Function) {
 
     for ( unsigned long i = 0; i < ExpDir->NumberOfNames; i++ ) {
         FuncName =  (void*)((unsigned long long)DllAddress + AddrNames[ i ]);
-
-        if (HashStr(FuncName) == Function ) {
-            Address =  (void*)((unsigned long long)DllAddress + AddrFuncs[ AddrOrdns[ i ] ]);
-            return Address;
+        if (len(FuncName) == FunctionHashInfo.size) {
+            if (HashStr(FuncName) == FunctionHashInfo.hash ) {
+                Address =  (void*)((unsigned long long)DllAddress + AddrFuncs[ AddrOrdns[ i ] ]);
+                return Address;
+            }
         }
     }
 
